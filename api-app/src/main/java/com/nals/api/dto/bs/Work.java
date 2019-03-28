@@ -14,7 +14,7 @@ import lombok.Data;
 @Table(name = "WORK")
 public class Work {
 	@Id
-	@Column(name = "ID", length=30)
+	@Column(name = "ID", length=36)
 	private String id;
 
 	@Column(name = "WORK_NAME")
@@ -25,4 +25,7 @@ public class Work {
 
 	@Column(name = "ENDING_DATE")
 	private LocalDate endingDate;
+	
+	@Column(name = "STATUS")
+	private Status status;
 }
