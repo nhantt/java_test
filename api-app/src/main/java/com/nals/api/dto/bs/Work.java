@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
@@ -18,12 +20,15 @@ public class Work {
 	private String id;
 
 	@Column(name = "WORK_NAME")
+	@JsonProperty("work-name")
 	private String workName;
 	
 	@Column(name = "STARTING_DATE")
+	@JsonProperty("start-date")
 	private LocalDate startingDate;
 
 	@Column(name = "ENDING_DATE")
+	@JsonProperty("end-date")
 	private LocalDate endingDate;
 	
 	@Column(name = "STATUS")
