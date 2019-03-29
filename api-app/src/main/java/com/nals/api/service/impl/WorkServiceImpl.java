@@ -1,8 +1,8 @@
 package com.nals.api.service.impl;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -15,28 +15,46 @@ import org.springframework.stereotype.Service;
 import com.nals.api.dao.WorkDao;
 import com.nals.api.dto.bs.Work;
 import com.nals.api.service.IWorkService;
+import com.nals.api.util.IdGenerator;
 
 @Service
 public class WorkServiceImpl implements IWorkService {
+	@Autowired
+	IdGenerator idGenerator;
+
 	@Value("${app.api.pagesize}")
-    public static int DEFAULT_PAGESIZE = 50;
-	
+	public static int DEFAULT_PAGESIZE = 50;
+
 	@Autowired
 	private WorkDao dao;
 
 	@Override
-	public List<Work> getAllWork() {
-		return (List<Work>) dao.findAll();
+	public Page<Work> getAllWork() {
+		return getAllWork(0, Integer.MAX_VALUE, null);
+	}
+
+	@Override
+	public Page<Work> getAllWork(int pageNum, int pageSize, String sortColumn) {
+		return getAllWork(pageNum, pageSize, sortColumn, false);
 	}
 
 	@Override
 	public Page<Work> getAllWork(int pageNum, int pageSize, String sortColumn, boolean descending) {
-		// Prepare paging and sort order
-		Sort sort = Sort.by(descending ? Direction.DESC : Direction.ASC, sortColumn);
-		Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 0 ? pageSize : DEFAULT_PAGESIZE, sort);
+		if (!StringUtils.isEmpty(sortColumn)) {
+			// Prepare paging and sort order
+			Sort sort = Sort.by(descending ? Direction.DESC : Direction.ASC, sortColumn);
+			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 0 ? pageSize : DEFAULT_PAGESIZE,
+					sort);
 
-		// Get data
-		return dao.findAll(pageable);
+			// Get data
+			return dao.findAll(pageable);
+		} else {
+			// Prepare paging and sort order
+			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 0 ? pageSize : DEFAULT_PAGESIZE);
+
+			// Get data
+			return dao.findAll(pageable);
+		}
 	}
 
 	@Override
@@ -53,45 +71,21 @@ public class WorkServiceImpl implements IWorkService {
 	}
 
 	@Override
-	public void create(Work work) {
+	public String create(Work work) {
+		//Init new id
+		String id = idGenerator.newId();
+		work.setId(id);
 		dao.save(work);
-	}
-	
-	@Override
-	public void create(List<Work> works) {
-		dao.saveAll(works);
+		return id;
 	}
 
 	@Override
 	public void update(Work work) {
 		dao.save(work);
 	}
-	
-	@Override
-	public void update(List<Work> works) {
-		dao.saveAll(works);
-	}
 
 	@Override
 	public void deleteById(String id) {
 		dao.deleteById(id);
 	}
-
-	@Override
-	public void deleteById(List<String> ids) {
-		Iterable<Work> works = dao.findAllById(ids);
-		
-		dao.deleteAll(works);
-	}
-
-	@Override
-	public void delete(Work work) {
-		dao.delete(work);
-	}
-	
-	@Override
-	public void delete(List<Work> works) {
-		dao.deleteAll(works);
-	}
-
 }
