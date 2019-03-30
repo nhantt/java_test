@@ -29,4 +29,5 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	
 	compile 'org.apache.commons:commons-lang3:3.0'
+	testRuntime  'com.h2database:h2:1.4.199'
 }

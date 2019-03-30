@@ -1,7 +1,7 @@
 package com.nals.api.dto.bs;
 
 public enum Status {
-    PLANNING(1), DOING(2), COMPLETE (3);
+    PLANNING(0), DOING(1), COMPLETE (2);
 
     private int value;
 
