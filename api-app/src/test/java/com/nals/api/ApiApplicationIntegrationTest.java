@@ -34,7 +34,7 @@ import com.nals.api.dto.response.SortAndPagingResponse;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles(profiles = "test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ApiAppApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ApiApplication.class)
 @AutoConfigureMockMvc
 
 @Transactional
@@ -50,33 +50,42 @@ public class ApiApplicationIntegrationTest {
 
 	@Test
 	public void getAll_NoData() throws Exception {
+		//prepare data 
 		dao.deleteAll();
+		
+		//call api
 		MvcResult result = mvc.perform(get("/works/"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		List<Work> items = mapper.readValue(result.getResponse().getContentAsString(), List.class);
-
 		assertEquals(0, items.size());
 	}
 
 	@Test
 	public void getAll_HasData() throws Exception {
+		long countBefore = dao.count();
+		
+		//call api
 		MvcResult result = mvc.perform(get("/works/"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		List<Work> items = mapper.readValue(result.getResponse().getContentAsString(), List.class);
-		assertEquals(dao.count(), items.size());
+		assertEquals(countBefore, items.size());
 	}
 
 	@Test
 	public void retrieveItem_NoData() throws Exception {
-		String id = "12345";
+		//prepare data
 		dao.deleteAll();
 
+		//call api
+		String id = "12345";
 		MvcResult result = mvc.perform(get("/works/" + id))
 				.andExpect(status().isNotFound())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andReturn();
@@ -86,6 +95,7 @@ public class ApiApplicationIntegrationTest {
 	public void retrieveItem_HasData() throws Exception {
 		String id = "12345";
 
+		//prepare data
 		Work newWork = new Work();
 		newWork.setId(id);
 		newWork.setWorkName("Dummy work");
@@ -95,11 +105,13 @@ public class ApiApplicationIntegrationTest {
 
 		dao.save(newWork);
 
+		//call api
 		MvcResult result = mvc.perform(get("/works/" + id))
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		Work item = mapper.readValue(result.getResponse().getContentAsString(), Work.class);
 
 		assertNotNull(item);
@@ -108,6 +120,7 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void  getList_Normal() throws Exception{
+		//call api
 		SortAndPagingRequest req = new SortAndPagingRequest();
 		req.setDescending(false);
 		req.setPageNum(0);
@@ -121,6 +134,7 @@ public class ApiApplicationIntegrationTest {
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		SortAndPagingResponse item = mapper.readValue(result.getResponse().getContentAsString(), SortAndPagingResponse.class);
 		assertEquals(3, item.getTotalPages());
 		assertEquals(4, item.getItems().size());
@@ -129,6 +143,7 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void  getList_LastPage() throws Exception{
+		//call api
 		SortAndPagingRequest req = new SortAndPagingRequest();
 		req.setDescending(false);
 		req.setPageNum(2);
@@ -142,6 +157,7 @@ public class ApiApplicationIntegrationTest {
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		SortAndPagingResponse item = mapper.readValue(result.getResponse().getContentAsString(), SortAndPagingResponse.class);
 		assertEquals(3, item.getTotalPages());
 		assertEquals(1, item.getItems().size());
@@ -150,6 +166,7 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void  getList_OutOfRange() throws Exception{
+		//call api
 		SortAndPagingRequest req = new SortAndPagingRequest();
 		req.setDescending(false);
 		req.setPageNum(3);
@@ -163,6 +180,7 @@ public class ApiApplicationIntegrationTest {
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andReturn();
 
+		//confirm response
 		SortAndPagingResponse item = mapper.readValue(result.getResponse().getContentAsString(), SortAndPagingResponse.class);
 		assertEquals(3, item.getTotalPages());
 		assertEquals(0, item.getItems().size());
@@ -171,6 +189,7 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void  getList_InvalidPageNumber() throws Exception{
+		//call api
 		SortAndPagingRequest req = new SortAndPagingRequest();
 		req.setDescending(false);
 		req.setPageNum(-1);
@@ -187,6 +206,7 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void  getList_InvalidPageSize() throws Exception{
+		//call api
 		SortAndPagingRequest req = new SortAndPagingRequest();
 		req.setDescending(false);
 		req.setPageNum(0);
@@ -204,7 +224,8 @@ public class ApiApplicationIntegrationTest {
 	@Test
 	public void createItem_Success() throws Exception{
 		long countBefore = dao.count(); 
-				
+		
+		//call api
 		Work newWork = new Work();
 		newWork.setWorkName("Dummy work");
 		newWork.setStartingDate(LocalDate.now());
@@ -217,9 +238,10 @@ public class ApiApplicationIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
 				.andReturn();
-
+		
+		//confirm response
+		long countAfter = dao.count();
 		String item = result.getResponse().getContentAsString();
-		long countAfter = dao.count(); 
 		
 		Work verWork = dao.findById(item).get();
 		assertNotNull(verWork);
@@ -232,11 +254,13 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void updateItem_NoData() throws Exception{
+		//prepare data
 		String id = "DUMMY_ID_12345";
 		if(dao.existsById(id)) {
 			dao.deleteById(id);
 		}
 	
+		//call api
 		Work newWork = new Work();
 		newWork.setId(id);
 		
@@ -250,12 +274,14 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void updateItem_HasData() throws Exception{
+		//prepare data
 		String id = "DUMMY_ID_12345";
 		
 		Work newWork = new Work();
 		newWork.setId(id);
 		dao.save(newWork);
 		
+		//call api
 		newWork.setWorkName("Dummy work");
 		newWork.setStartingDate(LocalDate.now());
 		newWork.setEndingDate(LocalDate.now().plusDays(-10));
@@ -267,6 +293,7 @@ public class ApiApplicationIntegrationTest {
 				.andExpect(status().isOk())
 				.andReturn();
 		
+		//confirm response
 		assertEquals(0, result.getResponse().getContentLength());
 		
 		Work verWork = dao.findById(id).get();
@@ -275,11 +302,13 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void deleteItem_NoData() throws Exception{
+		//prepare data
 		String id = "DUMMY_ID_12345";
 		if(dao.existsById(id)) {
 			dao.deleteById(id);
 		}
 		
+		//call api
 		MvcResult result = mvc.perform(delete("/works/delete/" + id))
 				.andExpect(status().isNotFound())
 				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -288,12 +317,14 @@ public class ApiApplicationIntegrationTest {
 	
 	@Test
 	public void deleteItem_HasData() throws Exception{
+		//prepare data
 		String id = "DUMMY_ID_12345";
 		
 		Work newWork = new Work();
 		newWork.setId(id);
 		dao.save(newWork);
 		
+		//call api
 		MvcResult result = mvc.perform(delete("/works/delete/" + id))
 				.andExpect(status().isOk())
 				.andReturn();
