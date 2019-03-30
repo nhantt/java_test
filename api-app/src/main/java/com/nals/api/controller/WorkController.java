@@ -3,6 +3,8 @@ package com.nals.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,7 +51,7 @@ public class WorkController {
 
 	@PostMapping("/list")
 	@ResponseBody
-	public SortAndPagingResponse getAll(@RequestBody SortAndPagingRequest req) {
+	public SortAndPagingResponse getAll(@Valid @RequestBody SortAndPagingRequest req) {
 		SortAndPagingResponse response = new SortAndPagingResponse();
 
 		Page<Work> result = workService.getAllWork(req.getPageNum(), req.getPageSize(), req.getSortColumn(),

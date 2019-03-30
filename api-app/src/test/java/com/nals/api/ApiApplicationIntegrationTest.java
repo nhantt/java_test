@@ -170,6 +170,38 @@ public class ApiApplicationIntegrationTest {
 	}
 	
 	@Test
+	public void  getList_InvalidPageNumber() throws Exception{
+		SortAndPagingRequest req = new SortAndPagingRequest();
+		req.setDescending(false);
+		req.setPageNum(-1);
+		req.setPageSize(4);
+		req.setSortColumn("workName");
+
+		MvcResult result = mvc.perform(post("/works/list")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(req)))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+				.andReturn();
+	}
+	
+	@Test
+	public void  getList_InvalidPageSize() throws Exception{
+		SortAndPagingRequest req = new SortAndPagingRequest();
+		req.setDescending(false);
+		req.setPageNum(0);
+		req.setPageSize(0);
+		req.setSortColumn("workName");
+
+		MvcResult result = mvc.perform(post("/works/list")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsString(req)))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+				.andReturn();
+	}
+	
+	@Test
 	public void createItem_Success() throws Exception{
 		long countBefore = dao.count(); 
 				

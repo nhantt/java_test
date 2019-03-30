@@ -43,14 +43,14 @@ public class WorkServiceImpl implements IWorkService {
 		if (!StringUtils.isEmpty(sortColumn)) {
 			// Prepare paging and sort order
 			Sort sort = Sort.by(descending ? Direction.DESC : Direction.ASC, sortColumn);
-			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 0 ? pageSize : DEFAULT_PAGESIZE,
+			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 1 ? pageSize : DEFAULT_PAGESIZE,
 					sort);
 
 			// Get data
 			return dao.findAll(pageable);
 		} else {
 			// Prepare paging and sort order
-			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 0 ? pageSize : DEFAULT_PAGESIZE);
+			Pageable pageable = PageRequest.of(pageNum >= 0 ? pageNum : 0, pageSize > 1 ? pageSize : DEFAULT_PAGESIZE);
 
 			// Get data
 			return dao.findAll(pageable);
