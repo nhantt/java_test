@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +21,7 @@ public class WorkServiceImpl implements IWorkService {
 	@Autowired
 	IdGenerator idGenerator;
 
-	@Value("${app.api.pagesize}")
-	public static int DEFAULT_PAGESIZE = 50;
+	public static final int DEFAULT_PAGESIZE = 50;
 
 	@Autowired
 	private WorkDao dao;
