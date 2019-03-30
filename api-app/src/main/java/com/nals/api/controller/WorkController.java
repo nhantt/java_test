@@ -36,6 +36,7 @@ public class WorkController {
 	}
 	
 	@GetMapping("/{id}")
+	@ResponseBody
 	public Work retrieveItem(@PathVariable String id) throws EntityNotFoundException {
 		Work work = workService.findById(id);
 
